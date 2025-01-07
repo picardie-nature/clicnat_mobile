@@ -224,7 +224,16 @@ class HomeActivity : AppCompatActivity(),
                     BuildConfig.VERSION_NAME,
                     BuildConfig.VERSION_CODE,
                     DateFormat.getDateTimeInstance()
-                        .format(Date(BuildConfig.BUILD_DATE.toLong()))
+                        .format(
+                            Date(
+                                File(
+                                    packageManager.getApplicationInfo(
+                                        packageName,
+                                        0
+                                    ).sourceDir
+                                ).lastModified()
+                            )
+                        )
                 )
             )
         }
