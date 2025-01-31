@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name" translatable="false">Occtax</string>
+    <string name="app_name" translatable="false">Clicnat</string>
     <string name="app_version" translatable="false">%1$s (%2$d)\n%3$s</string>
 
     <string name="activity_login_title">Sign in</string>
