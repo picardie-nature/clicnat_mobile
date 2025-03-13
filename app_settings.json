@@ -30,7 +30,7 @@
       },
       {
         "key": "determiner",
-        "visible": true,
+        "visible": false,
         "default": false
       },
       {
