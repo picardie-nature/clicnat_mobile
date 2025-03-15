@@ -94,7 +94,7 @@ class AppSettingsFileLocalDataSourceTest {
                 areaObservationDuration = 365,
                 dataSyncSettings = DataSyncSettings(
                     geoNatureServerUrl = "https://demo.geonature.fr/geonature",
-                    taxHubServerUrl = "https://demo.geonature.fr/taxhub",
+                    taxHubServerUrl = "https://demo.geonature.fr/geonature/api/taxhub",
                     applicationId = 3,
                     usersListId = 1,
                     taxrefListId = 100,
