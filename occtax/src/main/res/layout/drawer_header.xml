@@ -9,7 +9,7 @@
     android:elevation="2dp"
     android:orientation="vertical"
     android:paddingHorizontal="@dimen/text_margin"
-    android:paddingTop="48dp"
+    android:paddingTop="@dimen/text_margin"
     android:paddingBottom="@dimen/text_margin"
     android:theme="@style/AppTheme">
 

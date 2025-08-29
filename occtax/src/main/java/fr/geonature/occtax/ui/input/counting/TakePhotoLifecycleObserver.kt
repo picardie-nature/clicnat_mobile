@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Matrix
 import android.net.Uri
 import android.provider.MediaStore
 import androidx.activity.result.ActivityResultLauncher
@@ -11,6 +12,7 @@ import androidx.activity.result.ActivityResultRegistry
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
+import androidx.exifinterface.media.ExifInterface
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import kotlinx.coroutines.CancellableContinuation
@@ -110,7 +112,7 @@ class TakePhotoLifecycleObserver(
 
     private fun asFile(uri: Uri): File {
         val filename = (uri.lastPathSegment ?: "${Date().time}").let {
-            "${it.substringBeforeLast(".")}.jpg"
+            "${it.substringBeforeLast(".").substringAfterLast("/")}.jpg"
         }
 
         if (!File(
@@ -141,23 +143,71 @@ class TakePhotoLifecycleObserver(
 
     private fun resizeAndCompress(file: File, scaleTo: Int = imageMaxSize) {
         val bmOptions = BitmapFactory.Options()
+        // get dimensions without loading the whole image in memory
         bmOptions.inJustDecodeBounds = true
-        BitmapFactory.decodeFile(file.absolutePath, bmOptions)
+        BitmapFactory.decodeFile(
+            file.absolutePath,
+            bmOptions
+        )
         val width = bmOptions.outWidth
         val height = bmOptions.outHeight
 
         // determine how much to scale down the image
         val scaleFactor = (width / scaleTo).coerceAtLeast(height / scaleTo)
 
-        bmOptions.inJustDecodeBounds = false
         bmOptions.inSampleSize = scaleFactor
+        bmOptions.inJustDecodeBounds = false
 
-        val resized = BitmapFactory.decodeFile(file.absolutePath, bmOptions) ?: return
-        file.outputStream().use {
-            resized.compress(Bitmap.CompressFormat.JPEG, imageQuality, it)
-            resized.recycle()
-            it.flush()
+        var bitmap = BitmapFactory.decodeFile(
+            file.absolutePath,
+            bmOptions
+        ) ?: return
+
+        val exif = ExifInterface(file)
+        val orientation: Int = exif.getAttributeInt(
+            ExifInterface.TAG_ORIENTATION,
+            ExifInterface.ORIENTATION_NORMAL
+        )
+
+        when (orientation) {
+            ExifInterface.ORIENTATION_ROTATE_90 -> Matrix().apply { postRotate(90f) }
+            ExifInterface.ORIENTATION_ROTATE_180 -> Matrix().apply { postRotate(180f) }
+            ExifInterface.ORIENTATION_ROTATE_270 -> Matrix().apply { postRotate(270f) }
+            else -> null
+        }?.also { matrix ->
+            bitmap = Bitmap.createBitmap(
+                bitmap,
+                0,
+                0,
+                bitmap.getWidth(),
+                bitmap.getHeight(),
+                matrix,
+                true
+            )
         }
+
+        if (bitmap.width.coerceAtLeast(bitmap.height) > scaleTo) {
+            val ratio = bitmap.width.coerceAtLeast(bitmap.height)
+                .toDouble() / bitmap.height.coerceAtMost(bitmap.width)
+                .toDouble()
+            bitmap = Bitmap.createScaledBitmap(
+                bitmap,
+                (bitmap.width / ratio).toInt(),
+                (bitmap.height / ratio).toInt(),
+                true
+            )
+        }
+
+        file.outputStream()
+            .use {
+                bitmap.compress(
+                    Bitmap.CompressFormat.JPEG,
+                    imageQuality,
+                    it
+                )
+                bitmap.recycle()
+                it.flush()
+            }
     }
 
     enum class ImagePicker {
