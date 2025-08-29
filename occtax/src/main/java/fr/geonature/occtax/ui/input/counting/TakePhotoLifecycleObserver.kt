@@ -112,7 +112,7 @@ class TakePhotoLifecycleObserver(
 
     private fun asFile(uri: Uri): File {
         val filename = (uri.lastPathSegment ?: "${Date().time}").let {
-            "${it.substringBeforeLast(".")}.jpg"
+            "${it.substringBeforeLast(".").substringAfterLast("/")}.jpg"
         }
 
         if (!File(
