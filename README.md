@@ -1,6 +1,6 @@
 # Clicnat-mobile
 
-Version 2.7.2 de l'appli [Occtax-mobile](https://github.com/PnX-SI/gn_mobile_occtax) customisée pour PicNat.
+Version 2.8.1 de l'appli [Occtax-mobile](https://github.com/PnX-SI/gn_mobile_occtax) customisée pour PicNat.
 
 ## Customisations
 

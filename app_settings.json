@@ -24,6 +24,11 @@
         "default": true
       },
       {
+        "key": "STATUT_OBS",
+        "visible": true,
+        "default": false
+      },
+      {
         "key": "METH_DETERMIN",
         "visible": true,
         "default": false
